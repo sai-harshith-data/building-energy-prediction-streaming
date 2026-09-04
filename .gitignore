@@ -216,3 +216,28 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project raw datasets 
+data/
+dataset/
+dataset*/
+raw_data/
+
+# Large/raw data files
+*.csv
+*.xlsx
+*.parquet
+
+# Allow small sample datasets only
+!sample_data/
+!sample_data/*.csv
+
+# Large ML/model/checkpoint files
+models/
+checkpoints/
+*.pkl
+*.joblib
+*.checkpoint
+
+# macOS
+.DS_Store
