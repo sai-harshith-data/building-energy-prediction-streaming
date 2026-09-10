@@ -37,3 +37,24 @@ The project uses building meter readings, building metadata and weather data. Ra
 - Real-time streaming analytics
 - Model evaluation
 - Data engineering
+
+## Repository Structure
+notebooks/
+├── building_energy_prediction.ipynb              # Batch feature engineering and ML model training
+├── streaming_producer.ipynb                      # Kafka producer for simulated weather stream
+├── spark_streaming_prediction.ipynb              # Spark Structured Streaming prediction pipeline
+└── streaming_consumer_visualisation.ipynb        # Kafka consumer and visualisation workflow
+
+## Notebooks
+
+1. **building_energy_prediction.ipynb**  
+   Builds the batch machine leøarning workflow, including data loading, cleaning, feature engineering, model training, evaluation and model saving.
+
+2. **streaming_producer.ipynb**  
+   Simulates streaming weather data and sends messages to Kafka topics.
+
+3. **spark_streaming_prediction.ipynb**  
+   Consumes streaming data using Spark Structured Streaming, applies the saved model and generates real-time energy predictions.
+
+4. **streaming_consumer_visualisation.ipynb**  
+   Reads prediction outputs and creates visual summaries for energy consumption analysis.
