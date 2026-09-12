@@ -2,28 +2,21 @@
 
 An end-to-end big data and machine learning project for predicting building energy consumption using historical meter readings, building metadata and weather data. The project combines batch model training with a real-time streaming prediction pipeline using PySpark, Spark MLlib, Apache Kafka and Spark Structured Streaming.
 
-The goal of this project is to demonstrate how large-scale energy data can be processed, modelled and converted into streaming prediction insights that can support energy monitoring, building operations and demand analysis.
+The goal of this project is to demonstrate how large-scale building energy data can be processed, modelled and converted into streaming prediction insights for energy monitoring and operational decision support.
 
 ---
 
 ## Project Overview
 
-This project contains two main parts:
+This project contains two main components:
 
-1. **Batch Machine Learning Pipeline**
-   - Loads large historical meter, building and weather datasets.
-   - Cleans and aggregates energy readings into 6-hour windows.
-   - Engineers weather, building and time-based features.
-   - Trains a Random Forest regression model using PySpark MLlib.
-   - Saves the trained model for streaming prediction.
+### 1. Batch Machine Learning Pipeline
 
-2. **Real-Time Streaming Prediction Pipeline**
-   - Sends weather observations into Kafka using a Python producer.
-   - Uses Spark Structured Streaming to consume weather events.
-   - Joins streamed weather data with building metadata.
-   - Applies the saved Random Forest model to generate energy predictions.
-   - Publishes prediction outputs back to Kafka.
-   - Consumes prediction topics and visualises predicted energy patterns.
+The batch pipeline loads historical meter readings, building metadata and weather observations. It cleans the datasets, aggregates energy readings into 6-hour windows, engineers building, weather and time-based features, trains a machine learning model and saves the final Spark ML pipeline model.
+
+### 2. Real-Time Streaming Prediction Pipeline
+
+The streaming pipeline simulates real-time weather ingestion using Kafka. Weather records are sent into a Kafka topic, consumed by Spark Structured Streaming, transformed into model-ready features and scored using the saved Random Forest model. The prediction outputs are then written back to Kafka and visualised in a consumer notebook.
 
 ---
 
@@ -101,20 +94,34 @@ building-energy-prediction-streaming/
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
+├── docs/
+│   └── project_summary.md
 ├── notebooks/
 │   ├── building_energy_prediction.ipynb
-│   ├── streaming_producer.ipynb
 │   ├── spark_streaming_prediction.ipynb
-│   └── streaming_consumer_visualisation.ipynb
-├── sample_data/
-│   ├── sample_building_information.csv
-│   ├── sample_weather.csv
-│   ├── sample_meters.csv
-│   └── README.md
+│   ├── streaming_consumer_visualisation.ipynb
+│   └── streaming_producer.ipynb
 ├── outputs/
-│   └── screenshots/
-└── docs/
-    └── project_summary.md
+│   └── Screenshots/
+│       ├── actual_vs_predicted_6h.png
+│       ├── eda_building_size_vs_consumption.png
+│       ├── eda_consumption_by_6h_block.png
+│       ├── eda_consumption_by_primary_use.png
+│       ├── eda_log_consumption_distribution.png
+│       ├── eda_temperature_vs_consumption.png
+│       ├── model_comparison.png
+│       ├── producer_sample_temperature_trend.png
+│       ├── producer_weather_records_by_site.png
+│       ├── streaming_prediction_distribution.png
+│       ├── streaming_predictions_6h.png
+│       ├── streaming_predictions_daily.png
+│       ├── streaming_predictions.png
+│       └── streaming_site_ranking.png
+└── sample_data/
+    ├── README.md
+    ├── sample_building_information.csv
+    ├── sample_meters.csv
+    └── sample_weather.csv
 ```
 
 The full `data/`, `models/` and `checkpoints/` folders are not uploaded to GitHub because they contain large local files or generated runtime outputs.
@@ -125,7 +132,7 @@ The full `data/`, `models/` and `checkpoints/` folders are not uploaded to GitHu
 
 The project uses three main datasets.
 
-### 1. Building Information
+### Building Information
 
 Contains metadata about each building.
 
@@ -143,7 +150,7 @@ latent_s
 latent_r
 ```
 
-### 2. Weather Data
+### Weather Data
 
 Contains hourly site-level weather observations.
 
@@ -160,9 +167,9 @@ wind_direction
 wind_speed
 ```
 
-### 3. Meter Data
+### Meter Data
 
-Contains historical building-level energy readings.
+Contains building-level energy meter readings.
 
 Example columns:
 
@@ -214,8 +221,6 @@ The sample files are intended for workflow testing and project review. Full mode
 
 The model uses building, weather and time-based features.
 
-Main feature groups:
-
 ```text
 Building features:
 - primary_use
@@ -245,6 +250,12 @@ Wind direction is converted into sine and cosine features so the model can learn
 
 ## Machine Learning Pipeline
 
+Notebook:
+
+```text
+notebooks/building_energy_prediction.ipynb
+```
+
 The batch notebook performs the following steps:
 
 ```text
@@ -262,7 +273,37 @@ The batch notebook performs the following steps:
 12. Save final Spark ML pipeline model
 ```
 
-The saved model is used later by the streaming prediction notebook.
+---
+
+## Batch Model Outputs
+
+### Log Consumption Distribution
+
+![Log consumption distribution](outputs/Screenshots/eda_log_consumption_distribution.png)
+
+### Consumption by Primary Use
+
+![Consumption by primary use](outputs/Screenshots/eda_consumption_by_primary_use.png)
+
+### Consumption by 6-Hour Block
+
+![Consumption by 6-hour block](outputs/Screenshots/eda_consumption_by_6h_block.png)
+
+### Building Size vs Consumption
+
+![Building size vs consumption](outputs/Screenshots/eda_building_size_vs_consumption.png)
+
+### Temperature vs Consumption
+
+![Temperature vs consumption](outputs/Screenshots/eda_temperature_vs_consumption.png)
+
+### Model Comparison
+
+![Model comparison](outputs/Screenshots/model_comparison.png)
+
+### Batch Actual vs Predicted
+
+![Actual vs predicted 6-hour energy](outputs/Screenshots/actual_vs_predicted_6h.png)
 
 ---
 
@@ -286,6 +327,14 @@ Input topic:
 weather_stream
 ```
 
+Producer outputs:
+
+![Weather records by site](outputs/Screenshots/producer_weather_records_by_site.png)
+
+![Sample temperature trend](outputs/Screenshots/producer_sample_temperature_trend.png)
+
+---
+
 ### 2. Spark Streaming Prediction
 
 Notebook:
@@ -294,7 +343,7 @@ Notebook:
 notebooks/spark_streaming_prediction.ipynb
 ```
 
-This notebook consumes weather records from Kafka, creates 6-hour features, joins building metadata and applies the saved Spark ML model.
+This notebook consumes weather records from Kafka, creates 6-hour weather features, joins building metadata and applies the saved Spark ML model.
 
 Output topics:
 
@@ -303,6 +352,8 @@ predictions_raw_v2
 predictions_6h_v2
 predictions_daily_v2
 ```
+
+---
 
 ### 3. Streaming Consumer Visualisation
 
@@ -314,21 +365,33 @@ notebooks/streaming_consumer_visualisation.ipynb
 
 This notebook consumes prediction messages from Kafka and creates visual summaries of the streaming predictions.
 
-Main visualisations:
+Streaming outputs:
 
-```text
-6-hour predicted energy trend
-Daily site-level predicted energy summary
-Site ranking by predicted energy
-Prediction distribution
-Combined streaming prediction dashboard
-```
+### Streaming Prediction Distribution
+
+![Streaming prediction distribution](outputs/Screenshots/streaming_prediction_distribution.png)
+
+### Streaming 6-Hour Predictions
+
+![Streaming 6-hour predictions](outputs/Screenshots/streaming_predictions_6h.png)
+
+### Streaming Daily Predictions
+
+![Streaming daily predictions](outputs/Screenshots/streaming_predictions_daily.png)
+
+### Streaming Site Ranking
+
+![Streaming site ranking](outputs/Screenshots/streaming_site_ranking.png)
+
+### Final Streaming Prediction Dashboard
+
+![Streaming prediction dashboard](outputs/Screenshots/streaming_predictions.png)
 
 ---
 
 ## How to Run the Project
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/sai-harshith-data/building-energy-prediction-streaming.git
@@ -337,18 +400,18 @@ cd building-energy-prediction-streaming
 
 ---
 
-### 2. Create folders
+### 2. Create Local Runtime Folders
 
 ```bash
 mkdir -p data
 mkdir -p models
 mkdir -p checkpoints
-mkdir -p outputs/screenshots
+mkdir -p outputs/Screenshots
 ```
 
 ---
 
-### 3. Add data files
+### 3. Add Data Files
 
 For full execution, place the original files inside:
 
@@ -369,13 +432,13 @@ sample_data/sample_meters.csv               -> data/meters.csv
 
 ---
 
-### 4. Install dependencies
+### 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Recommended main packages:
+Main packages:
 
 ```text
 pyspark
@@ -412,11 +475,13 @@ docker run -d \
   confluentinc/cp-kafka:7.5.0
 ```
 
-If running on a Docker network, adjust the Kafka broker setting inside the notebooks.
+If running inside a Docker network, update the Kafka broker setting inside the notebooks.
 
 ---
 
-### 6. Run notebooks in order
+### 6. Run Notebooks
+
+Recommended full order:
 
 ```text
 1. notebooks/building_energy_prediction.ipynb
@@ -436,7 +501,7 @@ Recommended streaming order:
 
 ---
 
-## Important Runtime Notes
+## Runtime Notes
 
 The producer notebook uses a safety flag:
 
@@ -452,7 +517,7 @@ RUN_PRODUCER = True
 
 only when the Spark streaming prediction notebook is already active.
 
-The Spark streaming prediction notebook also uses a safety flag:
+The Spark streaming prediction notebook uses a safety flag:
 
 ```python
 START_STREAMING_JOB = False
@@ -468,42 +533,11 @@ only after setup cells have run successfully.
 
 ---
 
-## Screenshots
-
-Add project screenshots inside:
-
-```text
-outputs/screenshots/
-```
-
-Recommended screenshots:
-
-```text
-1. Batch model final RMSLE output
-2. Spark streaming query status
-3. 6-hour predicted energy trend
-4. Daily site-level prediction summary
-5. Site ranking by predicted energy
-6. Final combined streaming visualisation
-```
-
-Example README image references:
-
-```markdown
-![6-hour prediction trend](outputs/screenshots/streaming_prediction_6h_trend.png)
-
-![Daily prediction summary](outputs/screenshots/streaming_daily_site_summary.png)
-
-![Final streaming dashboard](outputs/screenshots/streaming_prediction_dashboard.png)
-```
-
----
-
-## Why Actual-vs-Predicted Validation Is Not Included in Streaming Visualisation
+## Why Streaming Actual-vs-Predicted Validation Is Not Included
 
 The streaming consumer notebook focuses on prediction monitoring and visualisation.
 
-Actual-vs-predicted validation is not included in the final streaming notebook because the streamed weather prediction sample and the actual meter dataset may not contain the same exact:
+Streaming actual-vs-predicted validation is not included because the streamed weather prediction sample and the actual meter dataset may not contain the same exact:
 
 ```text
 building_id + site_id + 6-hour time window
@@ -511,7 +545,7 @@ building_id + site_id + 6-hour time window
 
 A direct comparison without exact same-grain alignment can produce misleading results.
 
-Model performance is therefore reported from the batch test evaluation using RMSLE, while the streaming notebooks demonstrate real-time prediction generation and monitoring.
+Model performance is reported from the batch test evaluation using RMSLE. The streaming notebooks demonstrate real-time prediction generation, Kafka message flow and prediction monitoring.
 
 ---
 
@@ -521,6 +555,7 @@ This project demonstrates the ability to:
 
 ```text
 - Process large-scale time-series energy data with PySpark
+- Clean and aggregate high-volume meter readings
 - Engineer features from building, weather and time variables
 - Train and evaluate a Spark ML regression model
 - Save and reuse a machine learning model in a streaming environment
@@ -539,7 +574,7 @@ This project demonstrates the ability to:
 - Full model performance requires the original complete dataset.
 - The streaming setup is simulated using historical weather records sent through Kafka.
 - The saved model folder is not uploaded because it is a generated artifact.
-- Exact actual-vs-predicted streaming validation requires matching future meter readings at the same building and time-window grain.
+- Exact streaming actual-vs-predicted validation requires matching future meter readings at the same building and time-window grain.
 ```
 
 ---
@@ -550,7 +585,7 @@ This project demonstrates the ability to:
 - Add automated model retraining
 - Add MLflow experiment tracking
 - Add Docker Compose for easier Kafka and Spark setup
-- Add a dashboard using Streamlit or Power BI
+- Add Streamlit or Power BI dashboard deployment
 - Add anomaly detection for unusual building energy consumption
 - Store prediction outputs in a database or data lake
 - Deploy the streaming pipeline to a cloud environment
@@ -561,3 +596,11 @@ This project demonstrates the ability to:
 ## Author
 
 **Sai Harshith Reddy Moddu**
+
+```text
+Data Science
+Big Data Analytics
+Machine Learning
+PySpark
+Real-Time Streaming Analytics
+```
